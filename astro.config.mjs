@@ -5,11 +5,12 @@ import react from "@astrojs/react";
 
 import tailwindcss from "@tailwindcss/vite";
 
+import svelte from "@astrojs/svelte";
 import vue from "@astrojs/vue";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react(), vue()],
+  integrations: [react(), vue(), svelte()],
 
   vite: {
     plugins: [tailwindcss()],
