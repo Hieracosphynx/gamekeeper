@@ -3,7 +3,9 @@ import { writable } from "svelte/store";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 import PlayerView from "./PlayerView.svelte";
-import { getReadablePosition, PieceType } from "./types";
+import { getReadablePosition, PieceType } from "./utils";
+
+import type { PlayerMoveType } from "./utils";
 
 // Mock confirm dialog
 const mockConfirm = vi.fn();
@@ -48,8 +50,32 @@ describe("PlayerView", () => {
     expect(screen.getByText("e6")).toBeInTheDocument();
   });
 
-  //it("renders the player and moves", () => {
-  //      const playersAndMoves = writable<Record<string, string>[]>([]);
+  it("renders the player and moves", () => {
+    const playersAndMoves = writable<PlayerMoveType[]>([]);
 
-  //});
+    for (let index = 0; index < 2; index++) {
+      const newPlayer1Move: PlayerMoveType = {
+        player: "Player 1",
+        move: getReadablePosition(index, index + 1),
+      };
+      const newPlayer2Move: PlayerMoveType = {
+        player: "Player 2",
+        move: getReadablePosition(index + 1, index),
+      };
+
+      playersAndMoves.update((pm) => [...pm, newPlayer1Move, newPlayer2Move]);
+    }
+
+    render(PlayerView, { playersAndMoves });
+
+    // Player 1
+    expect(screen.getAllByText("Player 1")).toHaveLength(2);
+    expect(screen.getByText("a2")).toBeInTheDocument();
+    expect(screen.getByText("b3")).toBeInTheDocument();
+
+    // Player 2
+    expect(screen.getAllByText("Player 2")).toHaveLength(2);
+    expect(screen.getByText("b1")).toBeInTheDocument();
+    expect(screen.getByText("c2")).toBeInTheDocument();
+  });
 });

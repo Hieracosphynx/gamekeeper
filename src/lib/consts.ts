@@ -22,7 +22,7 @@ export const SUPPORTED_GAMES: BoardGameManifest[] = [
   },
   // :: Add more games here
   {
-    id: "6",
+    id: "171",
     name: "Chess",
     plugins: [
       {
