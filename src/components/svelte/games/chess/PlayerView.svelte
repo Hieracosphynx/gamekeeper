@@ -1,27 +1,29 @@
 <script lang="ts">
   	import type { Writable } from "svelte/store";
-	import type { PlayerMoveType } from "./utils.ts";
+	import { type StandardMoveSet, type KingMoveSet, type RookMoveSet, isKingOrRook } from "./utils.ts";
 
-	export let move;
-	export let chessPiece;
 	export let moves: Writable<string[]>;
-	export let playersAndMoves: Writable<PlayerMoveType[]>;
+	export let playerMoveSet: Writable<StandardMoveSet[] | KingMoveSet[] | RookMoveSet[]>;
 </script>
 
-<p>Hi</p>
-<p>{$move}</p>
-<p>{$chessPiece}</p>
 <ol>
 	{#each $moves as move}
 		<li>{move}</li>		
 	{/each}
 </ol>
 <ol>
-	{#each $playersAndMoves as trail}
+	{#each $playerMoveSet as trail}
 		<li>
 			<section>
 				<p>{trail.player}</p>
+				<p>{trail.piece}</p>
 				<p>{trail.move}</p>
+				{#if trail.take}
+					<p>{trail.player} {trail.piece} has taken {trail.capturedPiece}</p>
+				{/if}
+				{#if isKingOrRook(trail) }
+					<p>{trail.player} {trail.piece} castled {trail.castlingType}</p>	
+				{/if}
 			</section>
 		</li>	
 	{/each}
