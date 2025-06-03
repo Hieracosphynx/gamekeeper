@@ -22,7 +22,9 @@
 					<p>{trail.player} {trail.piece} has taken {trail.capturedPiece}</p>
 				{/if}
 				{#if isKingOrRook(trail) }
-					<p>{trail.player} {trail.piece} castled {trail.castlingType}</p>	
+					{#if trail.isCastling}
+						<p>{trail.player} {trail.piece} castled {trail.castlingType}</p>	
+					{/if}
 				{/if}
 			</section>
 		</li>	
