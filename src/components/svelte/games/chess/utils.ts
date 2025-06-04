@@ -11,11 +11,11 @@ export type StandardMoveSet = {
   capturedPiece: PieceType | undefined;
 };
 
-export interface KingMoveSet extends StandardMoveSet {
-  isCastling: boolean;
-  castlingType?: CastlingType;
+export interface KingMoveSet extends CastlingMoveSet {
+  isKing: boolean;
 }
-export interface RookMoveSet extends KingMoveSet {}
+
+export interface RookMoveSet extends CastlingMoveSet {}
 
 export enum PieceType {
   PAWN = "pawn", // 1
@@ -31,5 +31,13 @@ export const getReadablePosition = (
   rowIndex: number
 ): string => `${column[colIndex]}${row[rowIndex]}`;
 
-export const isKingOrRook = (moveSet: any): moveSet is KingMoveSet =>
+export const isKing = (moveSet: any): moveSet is KingMoveSet =>
+  moveSet && typeof moveSet === "object" && Boolean(moveSet.isKing);
+
+export const isRook = (moveSet: any): moveSet is RookMoveSet =>
   moveSet && typeof moveSet === "object" && Boolean(moveSet.isCastling);
+
+interface CastlingMoveSet extends StandardMoveSet {
+  isCastling: boolean;
+  castlingType?: CastlingType;
+}

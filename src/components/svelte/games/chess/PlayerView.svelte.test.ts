@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/svelte";
+import { render, screen, fireEvent, waitFor } from "@testing-library/svelte";
 import { writable } from "svelte/store";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
@@ -43,15 +43,18 @@ describe("PlayerView", () => {
 
     render(PlayerView, { playerMoveSet });
 
+    const getOnlyText = (txt: string) =>
+      screen.getAllByText(txt, { selector: ":not(button)" });
+
     // Player 1
-    expect(screen.getAllByText("Player 1")).toHaveLength(2);
-    expect(screen.getAllByText("rook")).toHaveLength(2);
+    expect(getOnlyText("Player 1")).toHaveLength(2);
+    expect(getOnlyText("rook")).toHaveLength(2);
     expect(screen.getByText("a2")).toBeInTheDocument();
     expect(screen.getByText("b3")).toBeInTheDocument();
 
     // Player 2
-    expect(screen.getAllByText("Player 2")).toHaveLength(2);
-    expect(screen.getAllByText("bishop")).toHaveLength(2);
+    expect(getOnlyText("Player 2")).toHaveLength(2);
+    expect(getOnlyText("bishop")).toHaveLength(2);
     expect(screen.getByText("b1")).toBeInTheDocument();
     expect(screen.getByText("c2")).toBeInTheDocument();
   });
@@ -84,6 +87,7 @@ describe("PlayerView", () => {
       move: getReadablePosition(6, 0),
       isCastling: true,
       castlingType: "kingside",
+      isKing: true,
     };
     const p1RookMoveSet: RookMoveSet = {
       player: "Player 1",
@@ -102,6 +106,7 @@ describe("PlayerView", () => {
       move: getReadablePosition(5, 7),
       isCastling: true,
       castlingType: "queenside",
+      isKing: true,
     };
     const p2RookMoveSet: RookMoveSet = {
       player: "Player 2",
@@ -139,5 +144,63 @@ describe("PlayerView", () => {
     expect(
       screen.getByText("Player 2 rook castled queenside")
     ).toBeInTheDocument();
+  });
+
+  it("renders which player lost and won", () => {
+    const isGameOver = true;
+    const matchLoser = "Player 1";
+    const matchWinner = "Player 2";
+
+    render(PlayerView, { matchLoser, matchWinner, isGameOver });
+
+    expect(screen.getByText("Player 1 lost the match!"));
+    expect(screen.getByText("Player 2 won the match!"));
+  });
+
+  it("renders buttons that selects which piece is moved by the player", () => {
+    render(PlayerView);
+
+    const chessPieceBtn = screen.getAllByRole("button");
+    const pawnBtn = chessPieceBtn.find(
+      (btn) => btn.textContent === PieceType.PAWN
+    ) as HTMLButtonElement;
+    const knightBtn = chessPieceBtn.find(
+      (btn) => btn.textContent === PieceType.KNIGHT
+    ) as HTMLButtonElement;
+    const bishopBtn = chessPieceBtn.find(
+      (btn) => btn.textContent === PieceType.BISHOP
+    ) as HTMLButtonElement;
+    const rookBtn = chessPieceBtn.find(
+      (btn) => btn.textContent === PieceType.ROOK
+    ) as HTMLButtonElement;
+    const queenBtn = chessPieceBtn.find(
+      (btn) => btn.textContent === PieceType.QUEEN
+    ) as HTMLButtonElement;
+    const kingBtn = chessPieceBtn.find(
+      (btn) => btn.textContent === PieceType.KING
+    ) as HTMLButtonElement;
+
+    const pressBtnEvent = (btn: HTMLButtonElement) => {
+      const text = btn.textContent;
+      fireEvent.click(btn);
+      waitFor(() => {
+        expect(
+          screen.getByText(
+            `Active Piece: ${PieceType[text as keyof typeof PieceType]}`
+          )
+        ).toBeInTheDocument();
+      });
+    };
+
+    pressBtnEvent(pawnBtn);
+    pressBtnEvent(bishopBtn);
+    pressBtnEvent(knightBtn);
+    pressBtnEvent(rookBtn);
+    pressBtnEvent(queenBtn);
+    pressBtnEvent(kingBtn);
+  });
+
+  it("renders a textbox that awaits user input for the move", () => {
+    // TODO
   });
 });
